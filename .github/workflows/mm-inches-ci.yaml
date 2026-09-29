@@ -1,10 +1,17 @@
 name: mm-inches CI
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - mm-inches/**
+      - .github/workflows/mm-inches-ci.yaml
   pull_request:
     paths:
       - mm-inches/**
       - .github/workflows/mm-inches-ci.yaml
+  workflow_dispatch:
   workflow_call:
 
 permissions:
