@@ -33,19 +33,25 @@ The final image is distroless, runs as a non-root user, and writes no applicatio
 Pull requests run formatting, race-enabled tests, `go vet`, a binary build,
 Kustomize rendering, and a hardened container smoke test.
 
-After changes are merged to `main`, create and push a semantic version tag:
+After a change to `mm-inches` is merged to `main`, CI runs and the release
+workflow automatically increments the latest patch version. It publishes the
+image, creates a namespaced tag such as `mm-inches-v0.1.4`, and opens a pull
+request in `tyler180/talos-gitops`.
+
+For an intentional minor or major release, create and push the desired
+namespaced semantic version tag instead:
 
 ```sh
 git switch main
 git pull --ff-only
-git tag -a mm-inches-v0.1.0 -m "Release mm-inches v0.1.0"
-git push origin mm-inches-v0.1.0
+git tag -a mm-inches-v0.2.0 -m "Release mm-inches v0.2.0"
+git push origin mm-inches-v0.2.0
 ```
 
-The release workflow publishes `tyler180/mm-inches:v0.1.0` for `linux/amd64`
+The release workflow publishes `tyler180/mm-inches:v0.1.4` for `linux/amd64`
 with provenance and an SBOM. It then opens a pull request in
 `tyler180/talos-gitops` using an image reference such as
-`tyler180/mm-inches:v0.1.0@sha256:...`. This keeps the version readable while
+`tyler180/mm-inches:v0.1.4@sha256:...`. This keeps the version readable while
 pinning the exact image content. Merge and sync that GitOps pull request when
 the release is ready for the cluster.
 
