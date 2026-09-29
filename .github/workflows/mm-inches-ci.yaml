@@ -1,11 +1,18 @@
-name: CI
+name: mm-inches CI
 
 on:
   pull_request:
+    paths:
+      - mm-inches/**
+      - .github/workflows/mm-inches-ci.yaml
   workflow_call:
 
 permissions:
   contents: read
+
+defaults:
+  run:
+    working-directory: mm-inches
 
 jobs:
   verify:
@@ -18,8 +25,9 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v7.0.0 # v7
         with:
-          go-version-file: go.mod
+          go-version-file: mm-inches/go.mod
           cache: true
+          cache-dependency-path: mm-inches/go.mod
 
       - name: Check formatting
         run: test -z "$(gofmt -l .)"

@@ -1,9 +1,9 @@
-name: Release
+name: mm-inches release
 
 on:
   push:
     tags:
-      - v*.*.*
+      - mm-inches-v*.*.*
 
 permissions:
   contents: read
@@ -21,13 +21,13 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          if [[ ! "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
-            echo "release tag must match vMAJOR.MINOR.PATCH; got $RELEASE_TAG" >&2
+          if [[ ! "$RELEASE_TAG" =~ ^mm-inches-v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "release tag must match mm-inches-vMAJOR.MINOR.PATCH; got $RELEASE_TAG" >&2
             exit 1
           fi
 
   ci:
-    uses: ./.github/workflows/ci.yaml
+    uses: ./.github/workflows/mm-inches-ci.yaml
 
   publish:
     needs:
@@ -37,7 +37,7 @@ jobs:
     timeout-minutes: 20
     outputs:
       digest: ${{ steps.build.outputs.digest }}
-      tag: ${{ steps.image.outputs.version }}
+      tag: ${{ steps.version.outputs.value }}
     steps:
       - name: Check out source
         uses: actions/checkout@v7.0.1 # v7.0.1
@@ -51,18 +51,24 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4.4.1 # v4.4.1
 
+      - name: Derive image version
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: echo "value=${RELEASE_TAG#mm-inches-}" >>"$GITHUB_OUTPUT"
+
       - name: Generate image metadata
         id: image
         uses: docker/metadata-action@v6.2.0 # v6.2.0
         with:
           images: tyler180/mm-inches
-          tags: type=raw,value=${{ github.ref_name }}
+          tags: type=raw,value=${{ steps.version.outputs.value }}
 
       - name: Build and publish image
         id: build
         uses: docker/build-push-action@v7.4.0 # v7.4.0
         with:
-          context: .
+          context: ./mm-inches
           platforms: linux/amd64
           push: true
           tags: ${{ steps.image.outputs.tags }}
