@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -14,6 +15,7 @@ var unitMillimeters = map[string]float64{
 	"decimal-inches":    25.4,
 	"fractional-inches": 25.4,
 	"feet":              304.8,
+	"feet-inches":       25.4,
 	"yards":             914.4,
 }
 
@@ -35,6 +37,7 @@ func convertFrom(unit string, value float64, decimalPlaces, denominator int) (ma
 		"decimal-inches":    formatDecimal(inches, decimalPlaces),
 		"fractional-inches": formatImperialFraction(inches, denominator),
 		"feet":              formatDecimal(inches/12, decimalPlaces),
+		"feet-inches":       formatFeetInches(inches, denominator),
 		"yards":             formatDecimal(inches/36, decimalPlaces),
 	}, nil
 }
@@ -131,4 +134,44 @@ func gcd(a, b int64) int64 {
 		a, b = b, a%b
 	}
 	return a
+}
+
+// Round the total length before splitting so 11 63/64 inches can carry into a foot.
+func formatFeetInches(inches float64, denominator int) string {
+	rounded := math.Round(math.Abs(inches)*float64(denominator)) / float64(denominator)
+	feet := math.Floor(rounded / 12)
+	result := fmt.Sprintf("%.0f' %s\"", feet, formatImperialFraction(rounded-feet*12, denominator))
+	if inches < 0 && rounded != 0 {
+		return "-" + result
+	}
+	return result
+}
+
+var feetInchesPattern = regexp.MustCompile(`(?i)^([0-9]+)\s*(?:'|′|ft|feet)\s*(.*?)\s*(?:"|″|in|inches)?$`)
+
+// parseFeetInches returns total inches, with a leading minus applying to the entire length.
+func parseFeetInches(raw string) (float64, error) {
+	value := strings.TrimSpace(raw)
+	negative := strings.HasPrefix(value, "-")
+	value = strings.TrimSpace(strings.TrimPrefix(value, "-"))
+	parts := feetInchesPattern.FindStringSubmatch(value)
+	if parts == nil {
+		return 0, fmt.Errorf("use feet and inches")
+	}
+	feet, err := strconv.ParseFloat(parts[1], 64)
+	if err != nil {
+		return 0, err
+	}
+	var inches float64
+	if parts[2] != "" {
+		inches, err = parseImperialFraction(parts[2])
+		if err != nil || math.IsNaN(inches) || math.IsInf(inches, 0) || inches < 0 || strings.ContainsAny(parts[2], "+-") {
+			return 0, fmt.Errorf("invalid inches")
+		}
+	}
+	total := feet*12 + inches
+	if negative {
+		total = -total
+	}
+	return total, nil
 }

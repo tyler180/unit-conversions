@@ -64,3 +64,34 @@ func TestParseImperialFraction(t *testing.T) {
 		}
 	}
 }
+
+func TestFeetInches(t *testing.T) {
+	cases := []struct {
+		input     string
+		inches    float64
+		formatted string
+	}{
+		{`5' 6 1/2"`, 66.5, `5' 6 1/2"`},
+		{`5 ft 6.5 in`, 66.5, `5' 6 1/2"`},
+		{`-0' 6"`, -6, `-0' 6"`},
+		{`0' 0"`, 0, `0' 0"`},
+		{`2'`, 24, `2' 0"`},
+		{`1' 11.99"`, 23.99, `2' 0"`},
+	}
+	for _, tt := range cases {
+		got, err := parseValue("feet-inches", tt.input)
+		if err != nil || math.Abs(got-tt.inches) > 1e-9 {
+			t.Errorf("parseValue(%q) = %v, %v; want %v", tt.input, got, err, tt.inches)
+			continue
+		}
+		values, err := convertFrom("feet-inches", got, 4, 16)
+		if err != nil || values["feet-inches"] != tt.formatted {
+			t.Errorf("convertFrom(%q) = %q, %v; want %q", tt.input, values["feet-inches"], err, tt.formatted)
+		}
+	}
+	for _, input := range []string{`abc`, `5' -6"`, `5' 1/0"`, `5' NaN"`, `5' 6"junk`} {
+		if _, err := parseValue("feet-inches", input); err == nil {
+			t.Errorf("parseValue(%q) should fail", input)
+		}
+	}
+}
