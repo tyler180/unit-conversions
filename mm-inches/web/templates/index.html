@@ -53,7 +53,8 @@
           <label class="check-row"><input type="checkbox" data-unit-toggle="meters"><span>Meters</span><small>m</small></label>
           <label class="check-row"><input type="checkbox" data-unit-toggle="fractional-inches" checked><span>Fractional inches</span><small>in</small></label>
           <label class="check-row"><input type="checkbox" data-unit-toggle="decimal-inches" checked><span>Decimal inches</span><small>in</small></label>
-          <label class="check-row"><input type="checkbox" data-unit-toggle="feet"><span>Feet</span><small>ft</small></label>
+          <label class="check-row"><input type="checkbox" data-unit-toggle="feet"><span>Decimal feet</span><small>ft</small></label>
+          <label class="check-row"><input type="checkbox" data-unit-toggle="feet-inches"><span>Feet + inches</span><small>ft + in</small></label>
           <label class="check-row"><input type="checkbox" data-unit-toggle="yards"><span>Yards</span><small>yd</small></label>
           <button type="button" id="restore-default-units">Use defaults</button>
         </fieldset>
@@ -87,8 +88,13 @@
         <div class="input-wrap"><input id="decimal-inches" inputmode="decimal" autocomplete="off" aria-describedby="status"><span class="unit-mark">in</span></div>
       </div>
       <div class="measurement" data-unit="feet" hidden>
-        <label for="feet"><span>Feet</span><small>ft</small></label>
+        <label for="feet"><span>Decimal feet</span><small>ft</small></label>
         <div class="input-wrap"><input id="feet" inputmode="decimal" autocomplete="off" aria-describedby="status"><span class="unit-mark">ft</span></div>
+      </div>
+      <div class="measurement" data-unit="feet-inches" hidden>
+        <label for="feet-inches"><span>Feet + inches</span><small>ft + in</small></label>
+        <div class="input-wrap"><input id="feet-inches" inputmode="text" autocomplete="off" aria-describedby="feet-inches-help status"><span class="unit-mark">ft + in</span></div>
+        <p id="feet-inches-help" class="row-help">Accepts 5' 6 1/2&quot; or 5 ft 6.5 in</p>
       </div>
       <div class="measurement" data-unit="yards" hidden>
         <label for="yards"><span>Yards</span><small>yd</small></label>

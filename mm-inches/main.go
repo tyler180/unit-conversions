@@ -133,6 +133,13 @@ func parseValue(unit, raw string) (float64, error) {
 	if strings.TrimSpace(raw) == "" {
 		return 0, fmt.Errorf("Enter a value to convert")
 	}
+	if unit == "feet-inches" {
+		value, err := parseFeetInches(raw)
+		if err != nil {
+			return 0, fmt.Errorf("Use feet and inches such as 5' 6 1/2\"")
+		}
+		return value, nil
+	}
 	if unit == "fractional-inches" {
 		value, err := parseImperialFraction(raw)
 		if err != nil {
